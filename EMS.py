@@ -51,16 +51,19 @@ class RUN:
         self.s.verify = False
         self.openId = token
         self.headers = {
-            'Host': 'ump.ems.com.cn',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B) NetType/WIFI MiniProgramEnv/Windows WindowsWechat/WMPF XWEB/6945',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-User': '?1',
-            'Sec-Fetch-Dest': 'document',
-            'Accept-Language': 'zh-CN,zh',
-     }
+            "Host": "ump.ems.com.cn",
+            "Connection": "keep-alive",
+            "Accept": "application/json, text/plain, */*",
+            "Atoken": "15a1d84ad5874bb994c54e8727556a45",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B) NetType/WIFI MiniProgramEnv/Windows WindowsWechat/WMPF WindowsWechat(0x63090a13) UnifiedPCWindowsWechat(0xf2540020) XWEB/11503",
+            "Content-Type": "application/json",
+            "Origin": "https://ump.ems.com.cn",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "zh-CN,zh;q=0.9",
+        }
 
 
     def do_request(self, url, method="POST",params=None, data=None, headers=None):
@@ -222,25 +225,17 @@ class RUN:
         Log(f"\n====== {act_name} ======")
         try:
             params = {
-                "appId": "wx52872495fb375c4b",
-                "userId": self.memberId,
-                "openId": self.openId,
                 "activId": '16f36f81f38f456a800ecafc85924700'
             }
-            response = self.do_request('https://ump.ems.com.cn/activCenterApi/signActivInfo/querySignDetail',data=params)
+            
+            response = self.do_request('https://ump.ems.com.cn/activCenterApi/eac/api/sign/querySignActivInfo',data=params)
             if response and response.get('code') == '000000':
                 Log(f'{act_name}成功✅')
                 info = response.get('info', {})
-                signDay = info.get('signDay', '')
-                maxContiSignDay = info.get('maxContiSignDay', '')
-                signDayList = info.get('signDayList', {})
+                signDay = info.get('isContinueSign', '')
+                coins = info.get('dailySignInCoins','')
                 Log(f'>累计签到：【{signDay}】天')
-                Log(f'>已连续签到：【{maxContiSignDay}】天')
-                if date.today().strftime("%Y-%m-%d") not in signDayList:
-                    Log(f'>今日未签到')
-                    self.sign()
-                else:
-                    Log(f'>今日已签到✅')
+                Log(f'>：金币: {coins}')
 
                 return True
             else:
@@ -256,6 +251,7 @@ class RUN:
 
         if self.findByOpenIdAppId():
             self.details()
+            self.sign()
             self.querySignDetail()
             self.queryPrizeIsReceive()
             self.memberGoldsInfo()
