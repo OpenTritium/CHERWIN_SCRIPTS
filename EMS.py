@@ -124,12 +124,9 @@ class RUN:
         Log(f"\n====== {act_name} ======")
         try:
             params = {
-                "appId":"wx52872495fb375c4b",
-                "userId":self.memberId,
-                "openId":self.openId,
                 "activId":'16f36f81f38f456a800ecafc85924700'
             }
-            response = self.do_request('https://ump.ems.com.cn/activCenterApi/signActivInfo/sign',data=params)
+            response = self.do_request('https://ump.ems.com.cn/activCenterApi/eac/api/sign/joinSign',data=params)
             if response and response.get('code') == '000000':
                 # print(response)
                 info = response.get('info', {})
